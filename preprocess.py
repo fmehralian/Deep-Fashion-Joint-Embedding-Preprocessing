@@ -2,22 +2,17 @@ import json
 import pickle
 import numpy as np
 import clean
+import os
+
+version = 1
+
 
 class Data:
 	def __init__(self):
-		self.data = json.load(open("list_description_inshop.json"))
-		self.counter = -1
+		with open("data/contents_v{}.txt".format(version)) as f:
+			data = [line.rstrip() for line in f]
+		self.data = data[1:]
 
-	def __next__(self):
-		if len(self.data) > self.counter+1:
-			self.counter += 1
-			return self.data[self.counter]["item"], (self.data[self.counter]["description"][0] if len(self.data[self.counter]["description"]) > 0 else "")
-		else:
-			self.counter = 0
-			raise StopIteration
-
-	def __iter__(self):
-		return self
 
 class Output:
 	def __init__(self):
@@ -39,12 +34,14 @@ class Output:
 		# Captions		
 		captions = ""
 		for cap in self.data[0]:
-			captions += cap + "\n"					
-		open("deepfashion/deepfashion_caps.txt", "w").write(captions.rstrip())
+			captions += cap + "\n"
+		if not os.path.exists('preprocessed_data'):
+			os.makedirs('preprocessed_data')
+		open("preprocessed_data/icons_v{}_caps.txt".format(version), "w").write(captions.rstrip())
 
 		# Vectors 
 		vecs = np.array(self.data[1])		
-		np.save('deepfashion/deepfashion_ims.npy', vecs)
+		np.save('preprocessed_data/icons_v{}_ims.npy'.format(version), vecs)
 
 		# Final sanity check
 		print("Difference (should be zero): ", (len(captions.split("\n"))-1) - len(vecs))
