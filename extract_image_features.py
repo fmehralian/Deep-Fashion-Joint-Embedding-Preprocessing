@@ -24,7 +24,7 @@ def SaveDict(data):
 if __name__ == "__main__":
 
 	# Where we will search for images
-	path_to_images = "data/selected_v{}/".format(version) #sys.argv[1]
+	path_to_images = "data/icons_v{}/".format(version) #sys.argv[1]
 
 	# Dictionary to store results
 	result = {}
