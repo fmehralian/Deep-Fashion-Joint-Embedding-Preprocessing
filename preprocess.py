@@ -52,8 +52,10 @@ data = Data()
 output = Output()
 image_vecs = pickle.load(open("image_feature_dictionary.pkl", "rb"))
 
-for idx, caption in data:			
-	output.add(clean.caption(caption), image_vecs[idx])	
+idx = 0
+for caption in data:
+    idx += 1
+    output.add(clean.caption(caption.split(",")[-1]), [image_vecs[str(idx)]])
 
 # Save our output
 output.save()
