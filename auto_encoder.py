@@ -95,7 +95,7 @@ class autoencoder(nn.Module):
         return encoded, decoded
 
 
-model = autoencoder()
+model = autoencoder().cuda()
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
                              weight_decay=1e-5)
@@ -103,7 +103,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
 for epoch in range(num_epochs):
     for batch_idx, (data, labels, paths) in enumerate(load_dataset()):
         img = data[:,0,:,:].unsqueeze(1)
-        img = Variable(img)
+        img = Variable(img).cuda()
         # ===================forward=====================
         enc, output = model(img)
         loss = criterion(output, img)
