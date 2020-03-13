@@ -1,5 +1,6 @@
 import torch
 import torchvision
+from PIL import Image
 from torch import nn
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
@@ -7,15 +8,19 @@ from torchvision import transforms
 from torchvision.datasets import MNIST
 from torchvision.utils import save_image
 import os
+import glob
+import numpy as np
 
-if not os.path.exists('./dc_img'):
-    os.mkdir('./dc_img')
+
+version = 1
+if not os.path.exists('dc_img'):
+    os.mkdir('dc_img')
 
 
 def to_img(x):
     x = 0.5 * (x + 1)
     x = x.clamp(0, 1)
-    x = x.view(x.size(0), 1, 28, 28)
+    x = x.view(x.size(0), 1, 244, 244)
     return x
 
 
@@ -28,8 +33,26 @@ img_transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-dataset = MNIST('./data', transform=img_transform, download=True)
-dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+path_to_images = "data/bw_icons_v{}/".format(version)
+
+
+def load_dataset():
+    data_path = 'data/bw_icons_v1/'
+    train_dataset = torchvision.datasets.ImageFolder(
+        root=data_path,
+        transform=torchvision.transforms.ToTensor()
+    )
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset,
+        batch_size=64,
+        num_workers=0,
+        shuffle=True
+    )
+    return train_loader
+
+#***
+# dataset = MNIST('./data', transform=img_transform, download=True)
+# dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 
 class autoencoder(nn.Module):
@@ -64,8 +87,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
                              weight_decay=1e-5)
 
 for epoch in range(num_epochs):
-    for data in dataloader:
-        img, _ = data
+    for batch_idx, (data, target) in enumerate(load_dataset()):
+        img = data[:,0,:,:].unsqueeze(1)
         img = Variable(img).cuda()
         # ===================forward=====================
         output = model(img)
@@ -79,6 +102,6 @@ for epoch in range(num_epochs):
           .format(epoch+1, num_epochs, loss.data.item()))
     if epoch % 10 == 0:
         pic = to_img(output.cpu().data)
-        save_image(pic, './dc_img/image_{}.png'.format(epoch))
+        save_image(pic, 'dc_img/image_{}.png'.format(epoch))
 
-torch.save(model.state_dict(), './conv_autoencoder.pth')
+torch.save(model.state_dict(), 'conv_autoencoder.pth')
