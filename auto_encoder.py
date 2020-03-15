@@ -2,7 +2,6 @@ import torch
 from sklearn.cluster import KMeans
 from torch import nn
 from torch.autograd import Variable
-from torch.nn.modules.flatten import Flatten
 from torchvision import transforms, datasets
 from torchvision.utils import save_image
 import os
