@@ -5,6 +5,7 @@ from torch.autograd import Variable
 from torchvision import transforms, datasets
 from torchvision.utils import save_image
 import os
+import json
 
 version = 1
 train = True
@@ -136,6 +137,21 @@ if train:
             save_image(pic, 'dc_img/image_{}.png'.format(epoch))
 
     torch.save(model.state_dict(), 'conv_autoencoder.pth')
+    result = {}
+    for batch_idx, (data, labels, paths) in enumerate(load_dataset()):
+        img = data[:, 0, :, :].unsqueeze(1)
+        img = Variable(img).to(device)
+        enc, output = model(img)
+        enc = enc.view(enc.size(0), -1)
+        for i in range(len(paths)):
+            result[paths[i]] = enc[i].tolist()
+
+    json_res = json.dumps(result)
+    f = open("dict.json", "w")
+    f.write(json_res)
+    f.close()
+
+
 else:
 
     model = autoencoder()
