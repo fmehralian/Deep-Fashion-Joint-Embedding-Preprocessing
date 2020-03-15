@@ -90,10 +90,24 @@ class autoencoder(nn.Module):
             nn.ConvTranspose2d(8, 1, 2, stride=2, padding=1),  # b, 1, 244, 244
             nn.Tanh()
         )
+        self.encoder1 = nn.Sequential(
+            nn.Conv2d(1, 8, 3, stride=2, padding=1),  # b, 8, 82, 82
+            nn.ReLU(True),
+            nn.MaxPool2d(2, stride=2),  # b, 16, 41, 41
+            nn.Conv2d(8, 1, 3, stride=1, padding=1),  # 1, 20, 20
+            nn.ReLU(True),
+            nn.MaxPool2d(2, stride=2)
+        )
+        self.decoder1 = nn.Sequential(
+            nn.ConvTranspose2d(1, 8, 5, stride=4),  # b, 8, 20, 20
+            nn.ReLU(True),
+            nn.ConvTranspose2d(8, 1, 4, stride=2),  # b, 1, 244, 244
+            nn.Tanh()
+        )
 
     def forward(self, x):
-        encoded = self.encoder(x)
-        decoded = self.decoder(encoded)
+        encoded = self.encoder1(x)
+        decoded = self.decoder1(encoded)
         return encoded, decoded
 
 
