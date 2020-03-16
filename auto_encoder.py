@@ -1,5 +1,4 @@
 import torch
-from sklearn.cluster import KMeans
 from torch import nn
 from torch.autograd import Variable
 from torchvision import transforms, datasets
@@ -167,6 +166,4 @@ else:
         for i in range(len(paths)):
             result[paths[i]] = enc[i].tolist()
 
-    kmeans = KMeans(n_clusters=7, n_init=20, n_jobs=4)
-    y_pred_kmeans = kmeans.fit_predict(result.values())
-    print(y_pred_kmeans)
+
